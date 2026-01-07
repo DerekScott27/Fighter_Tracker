@@ -1,0 +1,219 @@
+<!doctype html>
+
+<html class="no-js" lang="eng">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fighter Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen p-6">
+
+    <header id="header" class="max-w-3xl mx-auto mb-6 text-center text-xl font-semibold">
+        Submit a fighter to your list to track their skillset for analysis and study.
+    </header>
+
+    <div id="forms" class="max-w-3xl mx-auto mb-8">
+        <form id="submit" class="grid gap-4">
+            <div class="grid gap-1">
+                <label for="name" class="block">Fighter Name</label>
+                <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    minlength="2"
+                    class="border p-2 w-full"
+                >
+            </div>
+
+            <div class="grid gap-1">
+                <label for="discipline" class="block">Fight Style / Discipline</label>
+                <input
+                    type="text"
+                    id="discipline"
+                    name="discipline"
+                    required
+                    minlength="2"
+                    class="border p-2 w-full"
+                >
+            </div>
+
+            <div class="grid gap-1">
+                <label for="record" class="block">URL Link to Fighter's Record</label>
+                <input
+                    type="url"
+                    id="record"
+                    name="record"
+                    required
+                    class="border p-2 w-full"
+                >
+            </div>
+
+            <div class="grid gap-1">
+                <label for="analysis" class="block">Analysis / Notes</label>
+                <textarea
+                    id="analysis"
+                    name="analysis"
+                    rows="4"
+                    class="border p-2 w-full"
+                ></textarea>
+            </div>
+
+            <div class="grid gap-2">
+                <span class="block font-medium mb-2">Fighter Attributes</span>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Head Movement
+                        <input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Head Movement"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Footwork<input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Footwork"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Body Punching<input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Body Punching"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Low Kicks<input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Low Kicks"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Speed Style Kicks<input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Speed Style Kicks"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Power Kicks<input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Power Kicks"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Boxing Combos<input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Boxing Combos"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Kickboxing Combos<input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Kickboxing Combos"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+
+                    <label class="inline-flex items-center gap-1 px-2 py-1 border rounded cursor-pointer">
+                        Power
+                        <input
+                         type="checkbox"
+                        id="attributes"
+                        name="attributes"
+                        value="Power"
+                        
+                        class="border p-2 w-full"
+                        />
+                        
+
+                    </label>
+                    
+                    
+
+
+            <div>
+                <label for="add-button" class="sr-only">Add To Job Tracker</label>
+                
+                <button
+                    type="submit"
+                    id="add-button"
+                    name="add-button"
+                    class="border px-4 py-2 w-full"
+                >
+                    Add To Fight Tracker
+                </button>
+            </div>
+        </form>
+    </div>
+    <div id="error-box" style="color: red; margin-bottom: 8px;"></div>
+    <div
+        id="list-div"
+        class="max-w-3xl mx-auto space-y-4"
+    >
+        
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
