@@ -1,7 +1,7 @@
 const form = document.getElementById('submit');
 const listDiv = document.getElementById('list-div');
 const errorBox = document.getElementById('error-box');
-const API_BASE = 'http://localhost:3002';
+
 
 // Helper to show errors if errorBox exists
 function showError(text) {

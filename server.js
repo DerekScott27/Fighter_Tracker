@@ -12,10 +12,24 @@ const PORT = process.env.PORT || 3002;
 app.use(cors());
 app.use(express.json());
 
+//Declaring the isProd variable, whose NODE.ENV value is set to 'production'. isProd will be used to flag when the app is running online vs locally.
+
+const isProd = process.env.NODE_ENV === 'production'; //'production' is the default value Render will set the NODE_ENV when its hosted on Render
+
+
+//poolConfig is an object which contains the settings to connect to the database
+const poolConfig = {
+  connectionString: process.env.DATABASE_URL,    //connectionString's value is the URL + additional info for connecting to the database
+}
+
+// If running in production (Render) enable SSL with relaxed authentication so Node accepts the Supabase cert
+if (isProd){
+  poolConfig.ssl = {
+    rejectUnauthorized: false
+  };
+}
 //Database pools
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
+const pool = new Pool(poolConfig);
 
 //Server Side Validation:
 
