@@ -35,7 +35,8 @@ async function loadFighters() {
     }
 
     fighters.forEach(function (fighter) {
-      const item = document.createElement('div');
+      const item = document.createElement('article');
+      item.className = 'fighter-card';
 
       let attributesText = 'None';
       if (Array.isArray(fighter.attributes) && fighter.attributes.length > 0) {
@@ -43,14 +44,36 @@ async function loadFighters() {
       }
 
       let createdText = '';
-      if (fighter.created_at) {
-        createdText = ' (created: ' + new Date(fighter.created_at).toLocaleString() + ')';
-      }
+  if (fighter.created_at) {
+    createdText = new Date(fighter.created_at).toLocaleString();
+  }
 
-      item.textContent = fighter.name + ' — ' + fighter.discipline + ' — ' + fighter.record + ' — Attributes: ' + attributesText + createdText;
-      item.className = 'fighter-item';
-      listDiv.appendChild(item);
-    });
+  // Build structured content
+  item.innerHTML = `
+    <header class="fighter-header">
+      <h3 class="fighter-name">${fighter.name}</h3>
+      <span class="fighter-discipline">${fighter.discipline}</span>
+    </header>
+
+    <div class="fighter-body">
+      <p class="fighter-record">
+        <strong>Record:</strong> ${fighter.record || 'N/A'}
+      </p>
+      <p class="fighter-attributes">
+        <strong>Attributes:</strong> ${attributesText}
+      </p>
+      <p class="fighter-analysis">
+        <strong>Analysis:</strong> ${fighter.analysis || 'No analysis yet.'}
+      </p>
+    </div>
+
+    <footer class="fighter-footer">
+      ${createdText ? `<span class="fighter-created">Created: ${createdText}</span>` : ''}
+    </footer>
+  `;
+
+  listDiv.appendChild(item);
+});
 
   } catch (error) {
     showError('Could not reach server. Is it running?');
