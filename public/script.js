@@ -20,15 +20,9 @@ document.getElementById('auth-form').addEventListener('submit', async (event) =>
   const password = event.target.password.value.trim();
 
 
-//Create error message to display in UI:
 
-function showError (text){
-  if(errorBox){
-    errorBox.textContent = text;
-  } else {
-    console.error(text);
-  }
-}
+
+
 
 
   //Signup event listener
