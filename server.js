@@ -3,14 +3,42 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
+
+
 
 //Middleware
 
 app.use(cors());
 app.use(express.json());
+
+//Middleware to require Supabase JWT:
+
+function requireUser(req, res, next){
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.startsWith('Bearer ')
+  ? authHeader.slice('Bearer '.length)
+  : null;
+
+  if (!token) {
+    return res.status(401).json({ error : 'Missing Authorization Header' });
+  }
+
+  try{
+    const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
+
+    req.user = decoded;
+    next();
+
+  } catch(err) {
+    console.error('JWT verification failed:', err.message);
+    return res.status(401).json({ error : 'Invalid or expired token' })
+  }
+}
+
 
 //Declaring the isProd variable, whose NODE.ENV value is set to 'production'. isProd will be used to flag when the app is running online vs locally.
 
@@ -75,7 +103,7 @@ app.get('/', (req, res)=>{
 
 // Post, to create the fighter table in the database:
 
-app.post('/fighters', async (req, res)=>{
+app.post('/fighters', requireUser, async (req, res)=>{
     const {name, discipline, record, analysis, attributes } = req.body;
 
 

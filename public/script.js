@@ -1,6 +1,107 @@
+import { supabase } from './supabase.js';
+
 const form = document.getElementById('submit');
 const listDiv = document.getElementById('list-div');
 const errorBox = document.getElementById('error-box');
+const API_BASE = 'https://fighter-tracker.onrender.com';
+
+const authEmailInput = document.getElementById('auth-email');
+const authPasswordInput = document.getElementById('auth-password');
+const authLoginButton = document.getElementById('login-button');
+const authSignupButton = document.getElementById('signup-button');
+const authLogoutButton = document.getElementById('logout-button');
+const authStatusDiv = document.getElementById('auth-status');
+const formSection = document.getElementById('forms');
+
+
+
+//User sign up:
+
+async function signUp(email, password){                           //Calls the 'signUp' method from Supabase authentication API to signup a user via email/password
+  const { data, error } = await supabase.auth.signUp({
+    email: email,
+    password: password
+  })
+  return { data, error};
+}
+
+//User sign in:
+
+async function signIn(email, password){                              //Calls the 'signIn' method from the Supabase auth API.
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: password
+  })
+  return { data, error};
+}
+
+//Update the UI based on logon state:
+
+async function updateAuthUI(){
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session) {
+    authStatusDiv.textContent = `Logged in as ${session.user.email}`;
+    authLogoutButton.style.display = 'inline-block';
+    authLoginButton.style.display = 'none';
+    authSignupButton.style.display = 'none';
+
+    if(formSection) formSection.style.display = 'block';
+  } else {
+    authStatusDiv.textContent = 'Not logged in.';
+    authLogoutButton.style.display = 'none';
+    authLoginButton.style.display = 'inline-block';
+    authSignupButton.style.display = 'inline-block';
+
+    if(formSection) {formSection.style.display = 'none'};
+  }
+}
+
+
+//Login event listener:
+authLoginButton.addEventListener('click', async () => {
+  showError('');
+  const email = authEmailInput.value.trim();
+  const password = authPasswordInput.value.trim();
+
+  const { error } = await signIn(email, password);
+  if (error) {
+    showError(error.message || 'Login failed');
+    return
+  }
+  await updateAuthUI();
+});
+
+//Signup event listener
+
+authSignupButton.addEventListener('click', async () => {
+  showError('');
+  const email = authEmailInput.value.trim();
+  const password = authPasswordInput.value.trim();
+
+  const { error } = await signUp(email, password);
+  if (error) {
+    showError(error.message || 'Signup failed');
+    return
+  }
+ 
+});
+
+//Logout function: 
+authLogoutButton.addEventListener('click', async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    showError(error.message || 'Logout failed');
+    return;
+  }
+  await updateAuthUI();
+});
+
+
+//Runs updatAuthUI using the onAuthStateChange method from supabase:
+supabase.auth.onAuthStateChange(async () => {
+  await updateAuthUI();
+});
 
 
 // Helper to show errors if errorBox exists
@@ -82,7 +183,7 @@ async function loadFighters() {
   }
 }
 
-// Handle form submit -> POST to server
+// Handle form submit then POST to server
 form.addEventListener('submit', async function (event) {
   event.preventDefault();
   showError('');
@@ -91,6 +192,7 @@ form.addEventListener('submit', async function (event) {
   const discipline = document.getElementById('discipline').value.trim();
   const record = document.getElementById('record').value.trim();
   const analysis = document.getElementById('analysis').value.trim();
+
 
   // collect checked checkboxes named "attributes"
   const checkedBoxes = document.querySelectorAll('input[name="attributes"]:checked');
@@ -108,11 +210,23 @@ form.addEventListener('submit', async function (event) {
     attributes: attributes
   };
 
+    // Get the current logged in user's session:
+  const { data: { session } } = await supabase.auth.getSession();   //Calling the getSession method from supabase API to check if user is logged in and get their info.
+
+  if (!session){
+    showError('Must be logged in to add fighter');
+    return;
+  }
+
+
   try {
-    const response = await fetch(API_BASE + '/fighters', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(fighter)
+    const response = await fetch(API_BASE + '/fighters',  { //Makes an HTTP fetch request to API_BASE /fighters, then POST to create a new fighter on the server
+  method: 'POST',
+  headers: {                                              //Sets the HTTP headers (including the auth token)
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${session.access_token}`  // Sends an access token to the backend so it can verify the user is logged in and allowed to perform the action.
+  },
+  body: JSON.stringify(fighter)
     });
 
     const data = await response.json();
@@ -131,10 +245,13 @@ form.addEventListener('submit', async function (event) {
     await loadFighters();
 
   } catch (error) {
-    showError('Could not reach server. Is it running?');
+    showError('Could not reach server.');
     console.error('Network or server error:', error);
   }
 });
 
 // Load fighters when the page loads
-window.addEventListener('DOMContentLoaded', loadFighters);
+window.addEventListener('DOMContentLoaded', async () => {
+  await updateAuthUI();
+  await loadFighters();
+});

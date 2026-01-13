@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="min-h-screen p-6">
@@ -15,6 +16,26 @@
     <header id="header" class="max-w-3xl mx-auto mb-6 text-center text-xl font-semibold">
         Submit a fighter to your list to track their skillset for analysis and study.
     </header>
+
+    <section id="auth-section">
+  <h2>Login / Sign Up</h2>
+  
+  <div id="auth-status"></div>
+  
+  <form id="auth-form">
+    <label for="auth-email">Email:</label>
+    <input type="email" id="auth-email" required>
+    
+    <label for="auth-password">Password:</label>
+    <input type="password" id="auth-password" required minlength="6">
+    
+    <div class="auth-buttons">
+      <button type="button" id="login-button">Login</button>
+      <button type="button" id="signup-button">Sign Up</button>
+      <button type="button" id="logout-button" style="display: none;">Logout</button>
+    </div>
+  </form>
+</section>
 
     <div id="forms" class="max-w-3xl mx-auto mb-8">
         <form id="submit" class="grid gap-4">
@@ -212,7 +233,7 @@
     </div>
 
     <script src="config.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 
 </body>
 
