@@ -13,7 +13,22 @@ const authLogoutButton = document.getElementById('logout-button');
 const authStatusDiv = document.getElementById('auth-status');
 const formSection = document.getElementById('forms');
 
+document.getElementById('auth-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const email = event.target.email.value.trim();
+  const password = event.target.password.value.trim();
 
+  //Signup event listener
+  const { error } = await signUp(email, password);
+  if (error) {
+    showError(error.message || 'Signup failed');
+    return;
+  }
+
+  // Success feedback
+  authStatusDiv.textContent = 'Sign up successful! Check your email to confirm.';
+  await updateAuthUI();
+});
 
 //User sign up:
 
@@ -72,20 +87,9 @@ authLoginButton.addEventListener('click', async () => {
   await updateAuthUI();
 });
 
-//Signup event listener
 
-authSignupButton.addEventListener('click', async () => {
-  showError('');
-  const email = authEmailInput.value.trim();
-  const password = authPasswordInput.value.trim();
 
-  const { error } = await signUp(email, password);
-  if (error) {
-    showError(error.message || 'Signup failed');
-    return
-  }
- 
-});
+
 
 //Logout function: 
 authLogoutButton.addEventListener('click', async () => {

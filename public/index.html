@@ -24,14 +24,14 @@
   
   <form id="auth-form">
     <label for="auth-email">Email:</label>
-    <input type="email" id="auth-email" required>
+    <input type="email" id="auth-email" name="email" required>
     
     <label for="auth-password">Password:</label>
-    <input type="password" id="auth-password" required minlength="6">
+    <input type="password" id="auth-password" name="password" required minlength="6">
     
     <div class="auth-buttons">
       <button type="button" id="login-button">Login</button>
-      <button type="button" id="signup-button">Sign Up</button>
+      <button type="submit" id="signup-button">Sign Up</button>
       <button type="button" id="logout-button" style="display: none;">Logout</button>
     </div>
   </form>
