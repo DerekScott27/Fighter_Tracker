@@ -12,6 +12,7 @@ const authSignupButton = document.getElementById('signup-button');
 const authLogoutButton = document.getElementById('logout-button');
 const authStatusDiv = document.getElementById('auth-status');
 const formSection = document.getElementById('forms');
+const protectedDiv = document.getElementById('protected');
 
 document.getElementById('auth-form').addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -61,14 +62,21 @@ async function updateAuthUI(){
     authLoginButton.style.display = 'none';
     authSignupButton.style.display = 'none';
 
-    if(formSection) formSection.style.display = 'block';
+    if (protectedDiv) protectedDiv.style.display = 'block';
+
+    // load protected data only when logged in
+    await loadFighters();
   } else {
     authStatusDiv.textContent = 'Not logged in.';
     authLogoutButton.style.display = 'none';
     authLoginButton.style.display = 'inline-block';
     authSignupButton.style.display = 'inline-block';
 
-    if(formSection) {formSection.style.display = 'none'};
+    if (protectedDiv) protectedDiv.style.display = 'none';
+
+    // clear sensitive UI
+    if (listDiv) listDiv.textContent = '';
+    if (errorBox) errorBox.textContent = '';
   }
 }
 
@@ -257,5 +265,5 @@ form.addEventListener('submit', async function (event) {
 // Load fighters when the page loads
 window.addEventListener('DOMContentLoaded', async () => {
   await updateAuthUI();
-  await loadFighters();
+
 });
