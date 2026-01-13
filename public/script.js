@@ -19,6 +19,18 @@ document.getElementById('auth-form').addEventListener('submit', async (event) =>
   const email = event.target.email.value.trim();
   const password = event.target.password.value.trim();
 
+
+//Create error message to display in UI:
+
+function showError (text){
+  if(errorBox){
+    errorBox.textContent = text;
+  } else {
+    console.error(text);
+  }
+}
+
+
   //Signup event listener
   const { error } = await signUp(email, password);
   if (error) {
@@ -38,6 +50,12 @@ async function signUp(email, password){                           //Calls the 's
     email: email,
     password: password
   })
+
+  if (error){
+    let errorMessage = "Sign up failed, please try again.";
+    showError(errorMessage);
+  }
+
   return { data, error};
 }
 
@@ -48,6 +66,13 @@ async function signIn(email, password){                              //Calls the
     email: email,
     password: password
   })
+
+  if (error) {
+    let errorMessage = "Login failed, please try again.";
+    showError(errorMessage)
+  }
+  
+
   return { data, error};
 }
 
