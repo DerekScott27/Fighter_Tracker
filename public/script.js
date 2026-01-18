@@ -74,9 +74,13 @@ async function signIn(email, password){                              //Calls the
 
 async function updateAuthUI(){
   console.log('updateAuthUI called');
-  const { data: { session } } = await supabase.auth.getSession();
-  console.log('Session:', session);
-  if (session) {
+
+  try{
+     const { data: { session } } = await supabase.auth.getSession();
+     console.log('Session:', session);
+
+
+       if (session) {
     console.log('User is logged in');
     authStatusDiv.textContent = `Logged in as ${session.user.email}`;
     authLogoutButton.style.display = 'inline-block';
@@ -100,6 +104,13 @@ async function updateAuthUI(){
     if (listDiv) listDiv.textContent = '';
     if (errorBox) errorBox.textContent = '';
   }
+  } catch(err){
+    console.error('getSession threw an error:', err);
+  }
+
+  
+  
+
 }
 
 
@@ -287,6 +298,16 @@ form.addEventListener('submit', async function (event) {
 // Run updateAuthUI when the page loads
 window.addEventListener('DOMContentLoaded', async () => {
   console.log('DOMContentLoaded');
+
+    // Check what's in localStorage
+  console.log('localStorage keys:', Object.keys(localStorage));
+  for (const key of Object.keys(localStorage)) {
+    if (key.includes('supabase') || key.includes('sb-')) {
+      console.log(`${key}:`, localStorage.getItem(key));
+    }
+  }
+
+
   await updateAuthUI();
 
 });
