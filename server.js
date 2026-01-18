@@ -105,7 +105,7 @@ app.get('/', (req, res)=>{
 
 app.post('/fighters', requireUser, async (req, res)=>{
     const {name, discipline, record, analysis, attributes } = req.body;
-
+    
 
 const errors = validateFighter({name, discipline, record, analysis});
 
@@ -113,6 +113,7 @@ const errors = validateFighter({name, discipline, record, analysis});
         return res.status(400).json({ errors });
     }
 
+    const userId = req.user.sub;
     const client = await pool.connect();
 
 try {
@@ -120,10 +121,10 @@ try {
 
     // 1) Insert fighter
     const fighterResult = await client.query(
-      `INSERT INTO fighters (name, discipline, record, analysis)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO fighters (name, discipline, record, analysis, user_id)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [name, discipline, record, analysis || null]
+      [name, discipline, record, analysis || null, userId]
     );
 
     const fighter = fighterResult.rows[0];
@@ -168,7 +169,8 @@ try {
 
 // ADD THE GET FROM THE DB:
 
-app.get('/fighters', async (req, res) => {
+app.get('/fighters', requireUser, async (req, res) => {
+  const userId = req.user.sub;
   try {
     const result = await pool.query(
       `SELECT
@@ -192,7 +194,8 @@ app.get('/fighters', async (req, res) => {
          f.record,
          f.analysis,
          f.created_at
-       ORDER BY f.id`
+       ORDER BY f.id`,
+       [userId]
     );
 
     res.status(200).json(result.rows);

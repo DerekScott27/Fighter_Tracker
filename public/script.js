@@ -172,8 +172,20 @@ async function loadFighters() {
   listDiv.textContent = 'Loading...';
   showError('');
 
+  // Get current Supabase session to access the JWT
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    listDiv.textContent = 'Please log in to see your fighters.';
+    return;
+  }
+
   try {
-    const response = await fetch(`${API_BASE}/fighters`);
+    const response = await fetch(`${API_BASE}/fighters`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+    });
 
     if (!response.ok) {
       showError('Error loading fighters from server.');
@@ -199,36 +211,36 @@ async function loadFighters() {
       }
 
       let createdText = '';
-  if (fighter.created_at) {
-    createdText = new Date(fighter.created_at).toLocaleString();
-  }
+      if (fighter.created_at) {
+        createdText = new Date(fighter.created_at).toLocaleString();
+      }
 
-  // Build structured content
-  item.innerHTML = `
-    <header class="fighter-header">
-      <h3 class="fighter-name">${fighter.name}</h3>
-      <span class="fighter-discipline">${fighter.discipline}</span>
-    </header>
+      // Build structured content
+      item.innerHTML = `
+        <header class="fighter-header">
+          <h3 class="fighter-name">${fighter.name}</h3>
+          <span class="fighter-discipline">${fighter.discipline}</span>
+        </header>
 
-    <div class="fighter-body">
-      <p class="fighter-record">
-        <strong>Record:</strong> ${fighter.record || 'N/A'}
-      </p>
-      <p class="fighter-attributes">
-        <strong>Attributes:</strong> ${attributesText}
-      </p>
-      <p class="fighter-analysis">
-        <strong>Analysis:</strong> ${fighter.analysis || 'No analysis yet.'}
-      </p>
-    </div>
+        <div class="fighter-body">
+          <p class="fighter-record">
+            <strong>Record:</strong> ${fighter.record || 'N/A'}
+          </p>
+          <p class="fighter-attributes">
+            <strong>Attributes:</strong> ${attributesText}
+          </p>
+          <p class="fighter-analysis">
+            <strong>Analysis:</strong> ${fighter.analysis || 'No analysis yet.'}
+          </p>
+        </div>
 
-    <footer class="fighter-footer">
-      ${createdText ? `<span class="fighter-created">Created: ${createdText}</span>` : ''}
-    </footer>
-  `;
+        <footer class="fighter-footer">
+          ${createdText ? `<span class="fighter-created">Created: ${createdText}</span>` : ''}
+        </footer>
+      `;
 
-  listDiv.appendChild(item);
-});
+      listDiv.appendChild(item);
+    });
 
   } catch (error) {
     showError('Could not reach server. Is it running?');
