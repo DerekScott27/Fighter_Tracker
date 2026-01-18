@@ -76,7 +76,7 @@ async function updateAuthUI(sessionFromEvent = null) {
   console.log('updateAuthUI called');
 
   try {
-    // Use passed session or fetch it
+    
     let session = sessionFromEvent;
     if (session === null) {
       const { data } = await supabase.auth.getSession();
@@ -139,12 +139,13 @@ authLoginButton.addEventListener('click', async () => {
 
 //Logout function: 
 authLogoutButton.addEventListener('click', async () => {
+  console.log('Logout button clicked'); // checking if this logs
   const { error } = await supabase.auth.signOut();
   if (error) {
     showError(error.message || 'Logout failed');
     return;
   }
-  await updateAuthUI();
+  console.log('SignOut successful');
 });
 
 
