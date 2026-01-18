@@ -286,6 +286,7 @@ form.addEventListener('submit', async function (event) {
 
 // Run updateAuthUI when the page loads
 window.addEventListener('DOMContentLoaded', async () => {
+  console.log('DOMContentLoaded');
   await updateAuthUI();
 
 });
