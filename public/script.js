@@ -146,6 +146,7 @@ authLogoutButton.addEventListener('click', async () => {
     return;
   }
   console.log('SignOut successful');
+  location.reload();
 });
 
 
