@@ -73,9 +73,11 @@ async function signIn(email, password){                              //Calls the
 //Update the UI based on logon state:
 
 async function updateAuthUI(){
+  console.log('updateAuthUI called');
   const { data: { session } } = await supabase.auth.getSession();
-
+  console.log('Session:', session);
   if (session) {
+    console.log('User is logged in');
     authStatusDiv.textContent = `Logged in as ${session.user.email}`;
     authLogoutButton.style.display = 'inline-block';
     authLoginButton.style.display = 'none';
@@ -86,6 +88,7 @@ async function updateAuthUI(){
     // load protected data only when logged in
     await loadFighters();
   } else {
+    console.log('No session found');
     authStatusDiv.textContent = 'Not logged in.';
     authLogoutButton.style.display = 'none';
     authLoginButton.style.display = 'inline-block';
@@ -281,7 +284,7 @@ form.addEventListener('submit', async function (event) {
   }
 });
 
-// Load fighters when the page loads
+// Run updateAuthUI when the page loads
 window.addEventListener('DOMContentLoaded', async () => {
   await updateAuthUI();
 
