@@ -72,18 +72,20 @@ async function signIn(email, password){                              //Calls the
 
 //Update the UI based on logon state:
 
-async function updateAuthUI(sessionFromEvent = null) {
-  console.log('updateAuthUI called');
+async function updateAuthUI(passedSession) {
+  console.log('updateAuthUI called, passedSession:', passedSession);
+
+  let session = passedSession;
+
+  // Only fetch session if no argument was passed at all
+  if (session === undefined) {
+    const { data } = await supabase.auth.getSession();
+    session = data.session;
+  }
+
+  console.log('Session used in updateAuthUI:', session);
 
   try {
-    
-    let session = sessionFromEvent;
-    if (session === null) {
-      const { data } = await supabase.auth.getSession();
-      session = data.session;
-    }
-    console.log('Session:', session);
-
     if (session) {
       console.log('User is logged in');
       authStatusDiv.textContent = `Logged in as ${session.user.email}`;
@@ -93,10 +95,9 @@ async function updateAuthUI(sessionFromEvent = null) {
 
       if (protectedDiv) protectedDiv.style.display = 'block';
 
-      // load protected data only when logged in
       await loadFighters();
     } else {
-      console.log('No session found');
+      console.log('No session found (logged-out UI branch)');
       authStatusDiv.textContent = 'Not logged in.';
       authLogoutButton.style.display = 'none';
       authLoginButton.style.display = 'inline-block';
@@ -104,12 +105,11 @@ async function updateAuthUI(sessionFromEvent = null) {
 
       if (protectedDiv) protectedDiv.style.display = 'none';
 
-      // clear sensitive UI
       if (listDiv) listDiv.textContent = '';
       if (errorBox) errorBox.textContent = '';
     }
   } catch (err) {
-    console.error('getSession threw an error:', err);
+    console.error('updateAuthUI error:', err);
   }
 }
 
@@ -146,7 +146,7 @@ authLogoutButton.addEventListener('click', async () => {
     return;
   }
   console.log('SignOut successful');
-  location.reload();
+
 });
 
 
