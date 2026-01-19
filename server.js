@@ -187,6 +187,7 @@ app.get('/fighters', requireUser, async (req, res) => {
        FROM fighters f
        LEFT JOIN fighter_attributes fa ON fa.fighters_id = f.id
        LEFT JOIN attributes a ON a.id = fa.attributes_id
+       WHERE f.user_id = $1
        GROUP BY
          f.id,
          f.name,
