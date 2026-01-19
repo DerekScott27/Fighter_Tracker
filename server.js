@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
+const jwksClient = require ('jwks-rsa');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -15,40 +16,54 @@ const PORT = process.env.PORT || 3002;
 app.use(cors());
 app.use(express.json());
 
+
+
+
+
+  // Create a JWKS client that fetches keys from Supabase
+  const client = jwksClient({
+    jwksURI: `${process.env.SUPABASE_URL}/auth/v1/jwks`,
+    cache: true,
+    cacheMaxAge: 600000, // 10 minutes
+  });
+  
+
+  function getKey(header, callback) {
+    client.getSigningKey(header.kid, (err, key) => {
+      if (err) {
+        console.error('Error fetching signing key:', err.message);
+        return callback(err);
+      }
+        const signingKey = key.getPublicKey();
+        callback(null, signingKey);
+
+
+    });
+
+
+  }
 //Middleware to require Supabase JWT:
 
-function requireUser(req, res, next){
+function requireUser(req, res, next) {
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.startsWith('Bearer ')
-  ? authHeader.slice('Bearer '.length)
-  : null;
+    ? authHeader.slice('Bearer '.length)
+    : null;
 
   if (!token) {
-    return res.status(401).json({ error : 'Missing Authorization Header' });
+    return res.status(401).json({ error: 'Missing Authorization Header' });
   }
 
-  try{
-    const decoded = jwt.verify(token, process.env.SUPABASE_JWT_SECRET);
-
-    req.user = decoded;
-    next();
-
-  } catch(err) {
-    console.error('JWT verification failed:', err.message);
-
-
-    try {
-      const headerJson = Buffer.from(token.split('.')[0], 'base64').toString('utf8');
-      console.error('Token header JSON:', headerJson);
-      const header = JSON.parse(headerJson);
-      console.error('Token header parsed:', header);
-    } catch (e) {
-      console.error('Could not decode token header:', e.message);
+  jwt.verify(token, getKey, { algorithms: ['ES256'] }, (err, decoded) => {
+    if (err) {
+      console.error('JWT verification failed:', err.message);
+      return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
-
-    return res.status(401).json({ error : 'Invalid or expired token' })
-  }
+    console.log('Token verified! User ID:', decoded.sub);
+    req.user = decoded;
+    next();
+  });
 }
 
 
