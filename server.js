@@ -22,7 +22,7 @@ app.use(express.json());
 
   // Create a JWKS client that fetches keys from Supabase
   const client = jwksClient({
-    jwksURI: `${process.env.SUPABASE_URL}/auth/v1/jwks`,
+    jwksUri: `${process.env.SUPABASE_URL}/auth/v1/jwks`,
     cache: true,
     cacheMaxAge: 600000, // 10 minutes
   });
