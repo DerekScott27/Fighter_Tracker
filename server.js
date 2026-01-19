@@ -35,6 +35,18 @@ function requireUser(req, res, next){
 
   } catch(err) {
     console.error('JWT verification failed:', err.message);
+
+
+    try {
+      const headerJson = Buffer.from(token.split('.')[0], 'base64').toString('utf8');
+      console.error('Token header JSON:', headerJson);
+      const header = JSON.parse(headerJson);
+      console.error('Token header parsed:', header);
+    } catch (e) {
+      console.error('Could not decode token header:', e.message);
+    }
+
+
     return res.status(401).json({ error : 'Invalid or expired token' })
   }
 }
