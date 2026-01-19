@@ -173,7 +173,15 @@ async function loadFighters() {
   showError('');
 
   // Get current Supabase session to access the JWT
-  const { data: { session } } = await supabase.auth.getSession();
+  const result = await supabase.auth.getSession();
+  const data = result.data;
+  const session = data.session;
+
+  if (session) {
+  console.log('Token starts with:', session.access_token.slice(0, 20));
+  console.log('Token algorithm:', JSON.parse(atob(session.access_token.split('.')[0])));
+}
+
 
   if (!session) {
     listDiv.textContent = 'Please log in to see your fighters.';
@@ -277,7 +285,16 @@ form.addEventListener('submit', async function (event) {
   };
 
     // Get the current logged in user's session:
-  const { data: { session } } = await supabase.auth.getSession();   //Calling the getSession method from supabase API to check if user is logged in and get their info.
+  const result = await supabase.auth.getSession();
+  const data = result.data;
+  const session = data.session;
+                                            //Calling the getSession method from supabase API to check if user is logged in and get their info.
+
+                                        
+  if (session) {
+  console.log('Token starts with:', session.access_token.slice(0, 20));
+  console.log('Token algorithm:', JSON.parse(atob(session.access_token.split('.')[0])));
+}
 
   if (!session){
     showError('Must be logged in to add fighter');
