@@ -27,6 +27,8 @@ app.use(express.json());
     cacheMaxAge: 600000, // 10 minutes
   });
   
+console.log('JWKS URI:', `${process.env.SUPABASE_URL}/auth/v1/jwks`);
+
 
   function getKey(header, callback) {
     client.getSigningKey(header.kid, (err, key) => {
