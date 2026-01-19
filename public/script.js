@@ -87,6 +87,7 @@ async function updateAuthUI(passedSession) {
 
   try {
     if (session) {
+      console.log('ACCESS TOKEN:', session.access_token);
       console.log('User is logged in');
       authStatusDiv.textContent = `Logged in as ${session.user.email}`;
       authLogoutButton.style.display = 'inline-block';
