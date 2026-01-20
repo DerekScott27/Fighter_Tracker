@@ -261,6 +261,7 @@ async function loadFighters() {
 // Handle form submit then POST to server
 form.addEventListener('submit', async function (event) {
   event.preventDefault();
+  console.log('form submit handler fired');
   showError('');
 
   const name = document.getElementById('name').value.trim();
