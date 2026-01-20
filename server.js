@@ -2,15 +2,13 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const corsOptions = {
+  origin: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 const { Pool } = require('pg');
-
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('SUPABASE_ANON_KEY present:', !!process.env.SUPABASE_ANON_KEY);
-console.log('JWKS URI (computed):', `${process.env.SUPABASE_URL}/.well-known/jwks.json`);
-
 const jwt = require('jsonwebtoken');
 const jwksClient = require ('jwks-rsa');
-
 const app = express();
 const PORT = process.env.PORT || 3002;
 
@@ -18,7 +16,7 @@ const PORT = process.env.PORT || 3002;
 
 //Middleware
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 
@@ -26,15 +24,19 @@ app.use(express.json());
 
 
   // Create a JWKS client that fetches keys from Supabase
-  const client = jwksClient({
-    jwksUri: `${process.env.SUPABASE_URL}/.well-known/jwks.json`,
-    cache: true,
-    cacheMaxAge: 600000, // 10 minutes
-    requestHeaders: {
-      apikey: process.env.SUPABASE_ANON_KEY
+const client = jwksClient({
+  jwksUri: `${process.env.SUPABASE_URL}/.well-known/jwks.json`,
+  cache: true,
+  cacheMaxAge: 600000,
+  // include both headers — service role in Authorization, anon in apikey
+  requestHeaders: {
+    Authorization: process.env.SUPABASE_SERVICE_ROLE_KEY
+      ? `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
+      : undefined,
+    apikey: process.env.SUPABASE_ANON_KEY
   }
-    
-  });
+});
+
   
 
 
