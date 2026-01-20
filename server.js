@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
 const jwksClient = require ('jwks-rsa');
 const app = express();
 const PORT = process.env.PORT || 3002;
-
+const jwksUri = `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
 
 
 //Middleware
@@ -25,15 +25,16 @@ app.use(express.json());
 
   // Create a JWKS client that fetches keys from Supabase
 const client = jwksClient({
-  jwksUri: `${process.env.SUPABASE_URL}/.well-known/jwks.json`,
+  jwksUri,
   cache: true,
   cacheMaxAge: 600000,
-  // include both headers — service role in Authorization, anon in apikey
   requestHeaders: {
+    // apikey may be sufficient server->auth for many projects
+    apikey: process.env.SUPABASE_ANON_KEY,
+    // optionally include service role (recommended for server-to-server)
     Authorization: process.env.SUPABASE_SERVICE_ROLE_KEY
       ? `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
-      : undefined,
-    apikey: process.env.SUPABASE_ANON_KEY
+      : undefined
   }
 });
 
@@ -59,9 +60,10 @@ const client = jwksClient({
 
 function requireUser(req, res, next) {
   const auth = req.headers.authorization || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice('Bearer '.length) : null;
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'Missing token' });
 
+  // asynchronous key retrieval
   jwt.verify(token, getKey, { algorithms: ['ES256'] }, (err, decoded) => {
     if (err) {
       console.error('JWT verification failed:', err);
@@ -71,7 +73,6 @@ function requireUser(req, res, next) {
     next();
   });
 }
-
 
 //Declaring the isProd variable, whose NODE.ENV value is set to 'production'. isProd will be used to flag when the app is running online vs locally.
 
