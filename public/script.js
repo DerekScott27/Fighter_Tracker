@@ -11,7 +11,7 @@ const authLoginButton = document.getElementById('login-button');
 const authSignupButton = document.getElementById('signup-button');
 const authLogoutButton = document.getElementById('logout-button');
 const authStatusDiv = document.getElementById('auth-status');
-const formSection = document.getElementById('forms');
+const authForm = document.getElementById('auth-form');
 const protectedDiv = document.getElementById('protected');
 
 document.getElementById('auth-form').addEventListener('submit', async (event) => {
@@ -95,6 +95,9 @@ async function updateAuthUI(passedSession) {
       authSignupButton.style.display = 'none';
 
       if (protectedDiv) protectedDiv.style.display = 'block';
+       
+      // HIDE the auth form when user is logged in
+      if (authForm) authForm.style.display = 'none';
 
       await loadFighters();
     } else {
@@ -105,7 +108,8 @@ async function updateAuthUI(passedSession) {
       authSignupButton.style.display = 'inline-block';
 
       if (protectedDiv) protectedDiv.style.display = 'none';
-
+      // SHOW the auth form again when logged out
+      if (authForm) authForm.style.display = 'block';
       if (listDiv) listDiv.textContent = '';
       if (errorBox) errorBox.textContent = '';
     }
@@ -141,22 +145,32 @@ authLoginButton.addEventListener('click', async () => {
 //Logout function: 
 authLogoutButton.addEventListener('click', async () => {
   console.log('Logout button clicked'); // checking if this logs
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    showError(error.message || 'Logout failed');
-    return;
-  }
+    // 1. Tell Supabase to end the session
+  await supabase.auth.signOut();
+  
+  // 2. Force clear valid tokens from the browser storage
+  localStorage.clear();
+  
+  // 3. Force a reload to reset the application state completely
+  window.location.reload();
   console.log('SignOut successful');
-  await updateAuthUI(null);
+  
 
 });
 
 
 //Runs updatAuthUI using the onAuthStateChange method from supabase:
 supabase.auth.onAuthStateChange(async (event, session) => {
-  console.log('onAuthStateChange event:', event);
-  console.log('onAuthStateChange session:', session);
-  await updateAuthUI(session);
+  // IGNORE token refreshes. This stops the screen from flashing/clearing 
+  // when Supabase updates the session in the background.
+  if (event === 'TOKEN_REFRESHED') {
+    return;
+  }
+
+  // Only update UI on actual Sign In, Sign Out, or Initialization
+  if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') {
+    await updateAuthUI(session);
+  }
 });
 
 
@@ -171,7 +185,10 @@ function showError(text) {
 
 // Load and display fighters from the server
 async function loadFighters() {
-  listDiv.textContent = 'Loading...';
+  // Only clear the list if it's currently empty (prevents flashing)
+  if (listDiv.children.length === 0) {
+    listDiv.textContent = 'Loading...';
+  }
   showError('');
 
   // Get current Supabase session to access the JWT
@@ -179,10 +196,6 @@ async function loadFighters() {
   const data = result.data;
   const session = data.session;
 
-  if (session) {
-  console.log('Token starts with:', session.access_token.slice(0, 20));
-  console.log('Token algorithm:', JSON.parse(atob(session.access_token.split('.')[0])));
-}
 
 
   if (!session) {
@@ -294,10 +307,7 @@ form.addEventListener('submit', async function (event) {
                                             //Calling the getSession method from supabase API to check if user is logged in and get their info.
 
                                         
-  if (session) {
-  console.log('Token starts with:', session.access_token.slice(0, 20));
-  console.log('Token algorithm:', JSON.parse(atob(session.access_token.split('.')[0])));
-}
+
 
   if (!session){
     showError('Must be logged in to add fighter');
@@ -315,16 +325,16 @@ form.addEventListener('submit', async function (event) {
   body: JSON.stringify(fighter)
     });
 
-    console.log('POST /fighters status:', response.status);
+   
 
-    let data = await response.json();
+    let data = null;
 try {
       data = await response.json();
     } catch (e) {
       console.log('POST /fighters had no JSON body');
       data = null;
     }
-    console.log('POST /fighters response body:', data);
+    
 
     if (!response.ok) {
       if (data && data.errors && Array.isArray(data.errors)) {
@@ -345,20 +355,3 @@ try {
   }
 });
 
-/* Run updateAuthUI when the page loads
-window.addEventListener('DOMContentLoaded', async () => {
-  console.log('DOMContentLoaded');
-
-    // Check what's in localStorage
-  console.log('localStorage keys:', Object.keys(localStorage));
-  for (const key of Object.keys(localStorage)) {
-    if (key.includes('supabase') || key.includes('sb-')) {
-      console.log(`${key}:`, localStorage.getItem(key));
-    }
-  }
-
-
-  await updateAuthUI();
-
-});
-*/
