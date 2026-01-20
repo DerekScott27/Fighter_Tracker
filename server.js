@@ -238,6 +238,25 @@ app.get('/fighters', requireUser, async (req, res) => {
 });
 
 
+const https = require('https'); // add at top if not already
+
+app.get('/debug-jwks', (req, res) => {
+  const url = `${process.env.SUPABASE_URL}/.well-known/jwks.json`;
+  console.log('Fetching JWKS from:', url);
+  
+  https.get(url, { headers: { apikey: process.env.SUPABASE_ANON_KEY } }, (resp) => {
+    let data = '';
+    resp.on('data', chunk => data += chunk);
+    resp.on('end', () => {
+      console.log('JWKS response status:', resp.statusCode);
+      console.log('JWKS response body:', data);
+      res.json({ status: resp.statusCode, body: data });
+    });
+  }).on('error', err => {
+    console.error('JWKS fetch error:', err);
+    res.status(500).json({ error: err.message });
+  });
+});
 
 app.listen(PORT, () =>{
     console.log(`Server listening on port ${PORT}`)
