@@ -3,6 +3,11 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_ANON_KEY present:', !!process.env.SUPABASE_ANON_KEY);
+console.log('JWKS URI (computed):', `${process.env.SUPABASE_URL}/.well-known/jwks.json`);
+
 const jwt = require('jsonwebtoken');
 const jwksClient = require ('jwks-rsa');
 
