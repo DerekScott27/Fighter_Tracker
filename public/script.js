@@ -314,13 +314,22 @@ form.addEventListener('submit', async function (event) {
   body: JSON.stringify(fighter)
     });
 
-    const data = await response.json();
+    console.log('POST /fighters status:', response.status);
+
+    let data = await response.json();
+try {
+      data = await response.json();
+    } catch (e) {
+      console.log('POST /fighters had no JSON body');
+      data = null;
+    }
+    console.log('POST /fighters response body:', data);
 
     if (!response.ok) {
       if (data && data.errors && Array.isArray(data.errors)) {
         showError(data.errors.join(' '));
       } else {
-        showError(data.error || 'Error saving fighter');
+        showError((data && data.error) || 'Error saving fighter');
       }
       return;
     }
