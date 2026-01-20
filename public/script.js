@@ -147,6 +147,7 @@ authLogoutButton.addEventListener('click', async () => {
     return;
   }
   console.log('SignOut successful');
+  await updateAuthUI(null);
 
 });
 
