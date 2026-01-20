@@ -131,7 +131,7 @@ authLoginButton.addEventListener('click', async () => {
     showError(error.message || 'Login failed');
     return
   }
-  await updateAuthUI();
+  
 });
 
 
